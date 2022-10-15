@@ -3,6 +3,9 @@ import tkinter as tk
 from tkinter import messagebox
 import webbrowser
 import random
+import fcfs
+
+
 
 root = tk.Tk()
 root.title("Interactive CPU Scheduler")
@@ -10,7 +13,54 @@ size = "1000x500"
 size_out = "1000x400"
 root.geometry(size)
 
+def algo(algorithm, queue):
+    def show_output(algorithm, output):
+        def ret():
+            top_out.grid_forget()
+            label.grid_forget()
+            button.grid_forget()
+            output_win.destroy()
+            
+        output_win = tk.Toplevel()
+        output_win.geometry(size)
+        button = tk.Button(output_win, text="Go Back", command=ret, height=2, width=14)
 
+        wait_time = output[0]
+        response_time = output[1]
+        turnaround_time = output[2]
+        throughput = output[3]
+        out = f"Average Waiting Time: {round(wait_time,2)}\n\nAverage Response Time: {round(response_time,2)}\n\nAverage Turnaround Time: {round(turnaround_time,2)}\n\nThroughput: {round(throughput,2)}"
+        label = tk.Label(output_win, text=out, justify="left", font=("Times New Roman", 12, "normal"))
+        top_out = tk.Label(output_win, text=f"Selected Algorithm\n({algorithm})", font=("Times New Roman", 15, "normal"))
+        t1 = tk.Label(output_win, text="Process ID", font=("Times New Roman", 15, "normal"))
+        t2 = tk.Label(output_win, text="Burst Time", font=("Times New Roman", 15, "normal"))
+        t3 = tk.Label(output_win, text="Arrival Time", font=("Times New Roman", 15, "normal"))
+        tk.Label(output_win, text="  ").grid(row=0, column=0, padx=60)
+        t1.grid(row=0, column=1, padx=60, pady=20)
+        t2.grid(row=0, column=2, pady=20)
+        t3.grid(row=0, column=3, padx=60, pady=20)
+        pri = [process[0] for process in queue]
+        burst = [process[1] for process in queue]
+        arriv = [process[2] for process in queue]
+        for i in range(len(pri)):
+            tk.Label(output_win, text=pri[i], font=("Times New Roman", 12, "normal")).grid(row=1+i, column=1)
+            tk.Label(output_win, text=burst[i], font=("Times New Roman", 12, "normal")).grid(row=1+i, column=2)
+            tk.Label(output_win, text=arriv[i], font=("Times New Roman", 12, "normal")).grid(row=1+i, column=3)
+        top_out.grid(row=10, column=1, padx=60, pady=10)
+        label.grid(row=11, column=1, padx=60)
+        button.grid(row=12, column=2, sticky=tk.NSEW)
+    if algorithm == "First Come First Serve":
+        output = fcfs.fcfs(queue)
+    elif algorithm == "Shortest Job First":
+        pass
+    elif algorithm == "Round Robin":
+        pass
+    elif algorithm == "Multi Level Queue":
+        pass
+    else:
+        messagebox.showerror("Select Algorithm First!", "Click on Select Algorithm button before submitting.")
+        return
+    show_output(algorithm, output)
 def goto_user_queue():
     second = tk.Toplevel()
     second.geometry(size)
@@ -75,7 +125,7 @@ def goto_user_queue():
     count=0
     b1 = tk.Button(second, text="Go to Main", height=2, command=lambda:goto_main(second))
     b2 = tk.Button(second, text="Add Process", height=2,  command=add_process)
-    #b3 = tk.Button(second, text="Submit", height=2, command=lambda:goto_submission(second, queue))
+    b3 = tk.Button(second, text="Submit", height=2, command=lambda:goto_submission(second, queue))
     b1.grid(row=2, column=0, padx=50, pady=50, sticky=tk.NSEW)
     b2.grid(row=2, column=1, padx=50, pady=50, sticky=tk.NSEW)
     b3.grid(row=2, column=2, padx=50, pady=50, sticky=tk.NSEW)
@@ -83,6 +133,58 @@ def goto_user_queue():
 def goto_main(second):
     root.deiconify()
     second.withdraw()
+
+def goto_submission(second, queue):
+    global submit
+    global extra
+    submit = None
+    extra = None
+    third = tk.Toplevel()
+    second.withdraw()
+    third.geometry(size)
+    ids = [pri[0] for pri in queue]
+    ids_stat = tk.Label(third, text=f"Process IDs: {ids}", relief=tk.SUNKEN, bd=2)
+    sl = tk.Scale(third, from_=1, to=7, orient=tk.HORIZONTAL)
+    pr = [process[0] for process in queue]
+    pr_pris = [0 for i in pr]
+    pr_idx = [0 for i in pr]    
+    pr_title = tk.Label(third, text="Process ID:")
+    pris_title = tk.Label(third, text="Priorities:")
+    time_quantum = tk.Label(third, text="Time Quantum")
+    feedback_label = tk.Label(third, text="Threshold (integer in range 1-5):")
+    feedback_threshold = tk.Entry(third)
+    for i in range(len(pr)):
+        pr_idx[i] = tk.Label(third, text=pr[i])
+        pr_pris[i] = tk.Entry(third)
+
+    
+        
+
+    def select_algo(algorithm):
+        global submit
+        global extra
+        extra = None
+        lab.config(text=op.get())
+        submit = algorithm
+    lab = tk.Label(third)
+    modes = [
+        ("First Come First Serve"),
+        ("Shortest Job First"),
+        ("Round Robin"),
+        ("Multi Level Queue"),
+    ]
+    op = tk.StringVar()
+    option = tk.OptionMenu(third, op, *modes)
+    b = tk.Button(third, text="Select Algorithm", height=2, width=30, command=lambda: select_algo(op.get()))
+    b1 = tk.Button(third, text="Go to Main", height=2, width=30, command=lambda:goto_main(third))
+    b2 = tk.Button(third, text="Submit for Processing", height=2, width=30, command=lambda:algo(submit, queue))
+    option.config(height=1, width=40)
+    option.grid(row=1, column=1, padx=60, pady=40)
+    b.grid(row=2, column=1, padx=60, pady=30, sticky=tk.NSEW)
+    b1.grid(row=2, column=0, padx=60, pady=30, sticky=tk.NSEW)
+    b2.grid(row=2, column=2, padx=60, pady=30, sticky=tk.NSEW)
+    lab.grid(row=3, column=1)
+    ids_stat.grid(row=0, column=0, columnspan=3, padx=90, sticky=tk.W+tk.E)
 
 def goto_about():
     about = tk.Toplevel()
