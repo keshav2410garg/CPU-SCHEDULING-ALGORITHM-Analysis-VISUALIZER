@@ -35,9 +35,6 @@ def get_cmap(n, name="hsv"):
 # EDIT THIS
 def find_gantt_array(pr_no, arrival, burst, n):
     mix = list(zip(pr_no, arrival, burst))
-    # print(mix)
-    # Note: mix is already sorted by arrival before function call
-
     result = {pr: [] for pr in pr_no}
 
     for i in range(n):
@@ -51,19 +48,13 @@ def find_gantt_array(pr_no, arrival, burst, n):
             result[cur_pr].append((cur_arr, cur_burst))
             prev_end_time = cur_arr + cur_burst
         else:
-            # check if prev is still executing ie current arrival < prev_end_time
             if cur_arr >= prev_end_time:
-                # no conflicts
                 result[cur_pr].append((cur_arr, cur_burst))
                 prev_end_time = cur_arr + cur_burst
             else:
-                # the current process arrives before the last one end
-                # so the start for current will be prev_end_time
                 result[cur_pr].append((prev_end_time, cur_burst))
                 prev_end_time = prev_end_time + cur_burst
 
-    # at the end, all processes executed, so the previous end time is the final completion time
-    # this final completion time is used in the plot function for setting the x limit
     return result, prev_end_time
 
 

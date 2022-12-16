@@ -4,8 +4,8 @@ from tkinter import messagebox
 import webbrowser
 import random
 import fcfs
-
-
+import sjf_non_pre
+import round_robin
 
 root = tk.Tk()
 root.title("Interactive CPU Scheduler")
@@ -52,9 +52,10 @@ def algo(algorithm, queue):
     if algorithm == "First Come First Serve":
         output = fcfs.fcfs(queue)
     elif algorithm == "Shortest Job First":
-        pass
+        output = sjf_non_pre(queue)
     elif algorithm == "Round Robin":
-        pass
+        value = extra.get()
+        output = round_robin(queue, value)
     elif algorithm == "Multi Level Queue":
         pass
     else:
