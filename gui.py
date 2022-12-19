@@ -52,10 +52,10 @@ def algo(algorithm, queue):
     if algorithm == "First Come First Serve":
         output = fcfs.fcfs(queue)
     elif algorithm == "Shortest Job First":
-        output = sjf_non_pre(queue)
+        output = sjf_non_pre.sjf_non_pre(queue)
     elif algorithm == "Round Robin":
         value = extra.get()
-        output = round_robin(queue, value)
+        output = round_robin.round_robin(queue, value)
     elif algorithm == "Multi Level Queue":
         pass
     else:
